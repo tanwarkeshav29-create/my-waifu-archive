@@ -1,5 +1,4 @@
 # my-waifu-archive
-the ultimate list
 import React, { useEffect, useState, useRef } from "react";
 import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip, Legend } from "recharts";
 
@@ -103,8 +102,31 @@ export default function UltimateCharacterGallery() {
 
   // Bulk / Import / Export
   function exportJSON(){ const data=JSON.stringify({ranks,characters},null,2); downloadBlob(data,'gallery.json'); }
-  function exportCSV(){ const rows=[['name','series','media','role','rank','genres','fate_universe','description']]; characters.forEach(c=>rows.push([c.name,c.series,c.media,c.role,c.rank,(c.genres||[]).join('|'),c.fate_universe? '1':'0', c.description.replace(/
-/g,' ')])); const csv = rows.map(r=>r.map(cell=>`"${(''+cell).replace(/"/g,'""')}"`).join(',')).join('
+  function exportCSV() {
+  const rows = [
+    ['name','series','media','role','rank','genres','fate_universe','description']
+  ];
+
+  characters.forEach(c => rows.push([
+    c.name,
+    c.series,
+    c.media,
+    c.role,
+    c.rank,
+    (c.genres || []).join('|'),
+    c.fate_universe ? '1' : '0',
+    (c.description || '').replace(/[
+
+]/g, ' ')
+  ]));
+
+  const csv = rows
+    .map(r => r.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(','))
+    .join('
+');
+
+  downloadBlob(csv, 'gallery.csv');
+}"`).join(',')).join('
 '); downloadBlob(csv,'gallery.csv'); }
   function downloadBlob(str, filename){ const blob=new Blob([str],{type:'application/octet-stream'}); const href=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=href; a.download=filename; a.click(); URL.revokeObjectURL(href); }
   function importJSON(e){ const f = e.target.files && e.target.files[0]; if(!f) return; const r=new FileReader(); r.onload=()=>{ try{ const parsed=JSON.parse(r.result); if(parsed.ranks) setRanks(parsed.ranks); if(Array.isArray(parsed.characters)) setCharacters(parsed.characters); else setCharacters(parsed); alert('Imported'); }catch(err){ alert('Import error: '+err.message);} }; r.readAsText(f); e.target.value=null; }
@@ -357,3 +379,5 @@ function GenreInput({value = [], onChange}){
   );
 }
 
+
+          
